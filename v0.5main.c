@@ -82,6 +82,8 @@ void calculoRapido();
 double lerDoubleValidado(const char *msg, double valorAtual);
 int lerIntValidado(const char *msg, int valorAtual);
 struct Produto validarPercentuaisProduto(struct Produto p);
+void menuGerenciarProdutos(struct Produto produtos[], int *qtd);
+void cadastrarProduto(struct Produto produtos[], int *qtd);
 
 //Funções de interface
 void limpar_tela() {
@@ -425,20 +427,40 @@ int lerIntValidado(const char *msg, int valorAtual) {
 }
 
 void configurarDespesasFixas() {
-    imprimir_cabecalho("CONFIGURAR DESPESAS FIXAS MENSAIS");
-    printf("\n%s%sVALORES ATUAIS:%s\n", BOLD, YELLOW, RESET);
+    imprimir_cabecalho("VISUALIZAR DESPESAS FIXAS MENSAIS");
+    printf("\n%s%sDESPESAS FIXAS ATUAIS:%s\n", BOLD, YELLOW, RESET);
     imprimir_valor("Agua", config.gasto_agua);
     imprimir_valor("Luz", config.gasto_luz);
     imprimir_valor("Gas", config.gasto_gas);
-    printf("%sProducao mensal          :%s %d unidades\n\n", CYAN, RESET, config.producao_mensal_unidades);
-    config.gasto_agua = lerDoubleValidado("Gasto mensal com AGUA (R$)", config.gasto_agua);
-    config.gasto_luz  = lerDoubleValidado("Gasto mensal com LUZ (R$)", config.gasto_luz);
-    config.gasto_gas  = lerDoubleValidado("Gasto mensal com GAS (R$)", config.gasto_gas);
-    config.producao_mensal_unidades = lerIntValidado("Producao mensal (unidades/mes)", config.producao_mensal_unidades);
-    if (!salvarConfigAtomic()) {
-        imprimir_aviso("Falha ao salvar configuracoes em disco.");
+    printf("%sProducao mensal          :%s %d unidades\n", CYAN, RESET, config.producao_mensal_unidades);
+
+    double total_fixo = config.gasto_agua + config.gasto_luz + config.gasto_gas;
+    printf("\n");
+    imprimir_valor("TOTAL DE DESPESAS FIXAS", total_fixo);
+
+    if (config.producao_mensal_unidades > 0) {
+        double rateio = total_fixo / (double)config.producao_mensal_unidades;
+        printf("%sRateio por unidade       :%s R$ %.2f\n", CYAN, RESET, rateio);
+    }
+
+    char buf[BUF_SIZE];
+    printf("\n%sDeseja alterar essas configuracoes? (s/n): %s", YELLOW, RESET);
+    lerLinha(buf, sizeof(buf));
+
+    if (buf[0] == 's' || buf[0] == 'S') {
+        printf("\n");
+        imprimir_secao("EDITAR DESPESAS FIXAS");
+        config.gasto_agua = lerDoubleValidado("Gasto mensal com AGUA (R$)", config.gasto_agua);
+        config.gasto_luz  = lerDoubleValidado("Gasto mensal com LUZ (R$)", config.gasto_luz);
+        config.gasto_gas  = lerDoubleValidado("Gasto mensal com GAS (R$)", config.gasto_gas);
+        config.producao_mensal_unidades = lerIntValidado("Producao mensal (unidades/mes)", config.producao_mensal_unidades);
+        if (!salvarConfigAtomic()) {
+            imprimir_aviso("Falha ao salvar configuracoes em disco.");
+        } else {
+            imprimir_sucesso("Configuracoes atualizadas com sucesso!");
+        }
     } else {
-        imprimir_sucesso("Configuracoes atualizadas com sucesso!");
+        printf("\nNenhuma alteracao realizada.\n");
     }
     pausar();
 }
@@ -607,6 +629,39 @@ void menuPosCadastro(struct Produto produtos[], int *qtd, int idxRecente) {
     }
 }
 
+void menuGerenciarProdutos(struct Produto produtos[], int *qtd) {
+    char buf[BUF_SIZE];
+    int opc;
+    do {
+        imprimir_cabecalho("GERENCIAR PRODUTOS");
+        printf("\n%s1%s - Cadastrar novo produto\n", GREEN, RESET);
+        printf("%s2%s - Listar produtos\n", GREEN, RESET);
+        printf("%s3%s - Editar produto\n", GREEN, RESET);
+        printf("%s4%s - Excluir produto\n", GREEN, RESET);
+        printf("%s5%s - Voltar ao menu principal\n", YELLOW, RESET);
+
+        int valido = 0;
+        while (!valido) {
+            printf("\n%sOpcao: %s", BOLD, RESET);
+            lerLinha(buf, sizeof(buf));
+            char *endptr;
+            opc = (int)strtol(buf, &endptr, 10);
+            if (endptr != buf && *endptr == '\0' && opc >= 1 && opc <= 5)
+                valido = 1;
+            else
+                imprimir_erro("Opcao invalida!");
+        }
+
+        switch (opc) {
+            case 1: cadastrarProduto(produtos, qtd); break;
+            case 2: listarProdutos(produtos, *qtd); pausar(); break;
+            case 3: editarProduto(produtos, *qtd); pausar(); break;
+            case 4: excluirProduto(produtos, qtd); break;
+            case 5: break;
+        }
+    } while (opc != 5);
+}
+
 void cadastrarProduto(struct Produto produtos[], int *qtd) {
     if (*qtd >= MAX_PRODUTOS) {
         imprimir_erro("Limite de produtos atingido!");
@@ -741,51 +796,30 @@ int main() {
         limpar_tela();
         imprimir_cabecalho("SIPRI - SISTEMA DE PRECIFICACAO INTELIGENTE");
         imprimir_secao("MENU PRINCIPAL");
-        printf("%s1%s - Cadastrar produto\n", GREEN, RESET);
-        printf("%s2%s - Listar produtos\n", GREEN, RESET);
-        printf("%s3%s - Editar produto\n", GREEN, RESET);
-        printf("%s4%s - Excluir produto\n", GREEN, RESET);
-        printf("%s5%s - Calculo rapido\n", GREEN, RESET);
-        printf("%s6%s - Configurar despesas fixas\n", GREEN, RESET);
-        printf("%s7%s - Salvar produtos\n", GREEN, RESET);
-        printf("%s8%s - Carregar produtos\n", GREEN, RESET);
-        printf("%s9%s - Sair\n", RED, RESET);
+        printf("%s1%s - Gerenciar produtos\n", GREEN, RESET);
+        printf("%s2%s - Calculo rapido\n", GREEN, RESET);
+        printf("%s3%s - Visualizar despesas fixas\n", GREEN, RESET);
+        printf("%s4%s - Sair\n", RED, RESET);
         int valido = 0;
         while (!valido) {
             printf("\n%sOpcao: %s", BOLD, RESET);
             lerLinha(buf, sizeof(buf));
             char *endptr;
             opc = (int)strtol(buf, &endptr, 10);
-            if (endptr != buf && *endptr == '\0' && opc >= 1 && opc <= 9)
+            if (endptr != buf && *endptr == '\0' && opc >= 1 && opc <= 4)
                 valido = 1;
             else
                 imprimir_erro("Opcao invalida!");
         }
         switch (opc) {
-            case 1: cadastrarProduto(produtos, &qtd); break;
-            case 2: listarProdutos(produtos, qtd); pausar(); break;
-            case 3: editarProduto(produtos, qtd); pausar(); break;
-            case 4: excluirProduto(produtos, &qtd); break;
-            case 5: calculoRapido(); break;
-            case 6: configurarDespesasFixas(); break;
-            case 7:
-                if (salvarProdutosAtomic(produtos, qtd))
-                    imprimir_sucesso("Produtos salvos!");
-                else
-                    imprimir_erro("Falha ao salvar!");
-                pausar();
-                break;
-            case 8:
-                carregarProdutos(produtos, &qtd);
-                imprimir_sucesso("Produtos carregados!");
-                printf("Total de produtos: %d\n", qtd);
-                pausar();
-                break;
-            case 9:
+            case 1: menuGerenciarProdutos(produtos, &qtd); break;
+            case 2: calculoRapido(); break;
+            case 3: configurarDespesasFixas(); break;
+            case 4:
                 limpar_tela();
                 printf("\n%s%sObrigado por usar o SIPRI!%s\n\n", BOLD, GREEN, RESET);
                 break;
         }
-    } while (opc != 9);
+    } while (opc != 4);
     return 0;
 }
