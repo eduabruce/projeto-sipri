@@ -1,0 +1,8 @@
+# depslib dependency file v1.0
+1765325611 source:c:\users\duda\downloads\testeduda\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<errno.h>
+	<unistd.h>
+
