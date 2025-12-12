@@ -1,4 +1,4 @@
-# projeto-sipri
+# PROJETO SIPRI
 Sistema de Precificação Inteligente - SIPRI desenvolvido para auxiliar vendedores autônomos,
 pequenos revendedores e lojistas a formarem o preço ideal de venda de seus produtos de forma rápida,
 precisa e segura. O projeto foi desenvolvido no Instituto Federal do Amazonas (IFAM), foi coordenado
@@ -13,10 +13,18 @@ Tecnologias Utilizadas:
  - Sistema de acesso randômico
  - Console Interativo
 
-Time Scrum - equipe desenvolvedora
-Eduarda Bruce da Silva
-Maria Gabriele
-Eline Lopes
-Juliany Roque
-Fernanda Maia
-Mikaelly
+Funções do projeto:
+ - Cadastrar produtos
+ - Editar produto
+ - Excluir produto
+ - Listar produto
+
+
+TIME SCRUM - Equipe desenvolvedora
+
+ Eduarda Bruce da Silva
+ Maria Gabriele Oliveira da Silva
+ Eline Lopes Picanço
+ Juliany Roque da Silva de Souza 
+ Fernanda Ribeiro Maia 
+ Mikaelly Barbosa da Cunha 
