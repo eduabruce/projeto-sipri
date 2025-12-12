@@ -22,9 +22,9 @@ Funções do projeto:
 
 TIME SCRUM - Equipe desenvolvedora
 
- Eduarda Bruce da Silva
- Maria Gabriele Oliveira da Silva
- Eline Lopes Picanço
- Juliany Roque da Silva de Souza 
- Fernanda Ribeiro Maia 
- Mikaelly Barbosa da Cunha 
+ - Eduarda Bruce da Silva
+ - Maria Gabriele Oliveira da Silva
+ - Eline Lopes Picanço
+ - Juliany Roque da Silva de Souza 
+ - Fernanda Ribeiro Maia 
+ - Mikaelly Barbosa da Cunha 
